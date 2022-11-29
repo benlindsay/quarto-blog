@@ -1,0 +1,16 @@
+[
+  {
+    "listing": "/index.html",
+    "items": [
+      "/posts/profiling-jupyter-code-with-py-spy/index.html",
+      "/posts/comparing-collaborative-filtering-methods/index.html",
+      "/posts/deploying-cookiecutter-django-site-on-aws/index.html",
+      "/posts/running-jupyter-lab-remotely/index.html",
+      "/posts/analyzing-larger-than-memory-data-on-your-laptop/index.html",
+      "/posts/taking-advantage-of-sparsity-in-als-wr-algorithm/index.html",
+      "/posts/dealing-with-grid-data-in-python/index.html",
+      "/posts/interactive-d3-map-of-baby-name-popularity/index.html",
+      "/posts/parameter-sweep-bash-script/index.html"
+    ]
+  }
+]

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ben Lindsay">
+<meta name="dcterms.date" content="2019-07-23">
+<meta name="description" content="Step-by-step walkthrough of deploying a Django app to AWS using the Django Cookiecutter template.">
+
+<title>Shallow Learnings - Deploying a Cookiecutter Django Site on AWS</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Shallow Learnings</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About Me</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://data-folks.masto.host/@benlindsay"><i class="bi bi-mastodon" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/benlindsay"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://linkedin.com/in/benjlindsay"><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Deploying a Cookiecutter Django Site on AWS</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">aws</div>
+    <div class="quarto-category">django</div>
+    <div class="quarto-category">docker</div>
+    <div class="quarto-category">python</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Step-by-step walkthrough of deploying a Django app to AWS using the Django Cookiecutter template.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ben Lindsay </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">July 23, 2019</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<p>The <a href="https://cookiecutter-django.readthedocs.io">Django Cookiecutter template</a> is an amazing tool to start up a Django project with all the bells and whistles ready to go. Getting your production site up and running can still be a bit of a hassle though, so to save myself, and hopefully a few others, from this hassle in the future, I’m recording all the steps that worked for me here. I’m sure there are other ways of doing this, and I’d love feedback on how to simplify the process.</p>
+<section id="quick-note" class="level2">
+<h2 class="anchored" data-anchor-id="quick-note">Quick Note</h2>
+<p>Following these steps may incur some small charges on AWS even if you think you’re on the “Free Tier”. Keep an eye on your billing dashboard and terminate all EC2 instances and delete Elastic IPs once you’re done with them. For reference though, my billing forecast shows $1.38 for the month of July after tons of messing around on AWS. If you have some AWS Educate credits, or some of your credits from starting an account left over, you should be fine though. Also you can <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/monitor_estimated_charges_with_cloudwatch.html">set up billing alerts</a> to make sure you don’t get caught off-guard.</p>
+</section>
+<section id="what-youll-get-out-of-this" class="level2">
+<h2 class="anchored" data-anchor-id="what-youll-get-out-of-this">What you’ll get out of this</h2>
+<p>If you follow all these steps closely, by the end you will have an HTTPS enabled site with a custom domain name running via Docker on AWS EC2, backed by PostgreSQL, Redis, and Traefik. You’ll be able to create simple user profiles with email confirmations (with some caveats). And best of all, you won’t have spent a dime. This is all it will look like, but it’ll be ready for you to put it straight into production once you customize it.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="django-cookiecutter-screenshot.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Django Cookicutter Screenshot</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="initialize-ec2-instance" class="level2">
+<h2 class="anchored" data-anchor-id="initialize-ec2-instance">1. Initialize EC2 Instance</h2>
+<p>Log in to your <a href="https://console.aws.amazon.com">AWS Console</a> (sign up for the Free Tier if you don’t have an account already). Click EC2 under services, and select your desired region from the menu near the top right of the page. I chose US East (Ohio) because that’s closest to my current location.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-ec2-region-selection.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Region Selection Screenshot</figcaption><p></p>
+</figure>
+</div>
+<p>Click on Running Instances, then Launch Instance. This gives you a list of images you can pick from. I used the second one because it says it includes Python and Docker. Other images would probably work too.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-ami-selection.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS AMI Selection Screenshot</figcaption><p></p>
+</figure>
+</div>
+<p>In the launch wizard, the only thing you need to modify is the Security Group. Click on “6. Configure Security Group” at near the top of the screen, then click “Add Rule” to add HTTP, then do it again to add HTTPS. This is necessary to make your instance accessible as an HTTPS-enabled website.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-security-group-configuration.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS EC2 Security Group Configuration</figcaption><p></p>
+</figure>
+</div>
+<p>With that, you’re set to launch. When you click launch, you’ll see a screen asking you to select or create a key pair. I’ll create a new one called “test-aws” and hit “Download Key Pair”. A good place to store the <code>test-aws.pem</code> file is in your <code>~/.ssh/</code> folder. Whatever you do, <strong>do not version control this file</strong>. You don’t want to accidentally push your private key to Github.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-create-key-pair.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Create Key Pair</figcaption><p></p>
+</figure>
+</div>
+<p>After downloading your key pair, make sure it has the correct permissions by running</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 600 ~/.ssh/test-aws.pem</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Make sure to use the path that points to your <code>.pem</code> file if you named it differently or stored it somewhere else. Now you can finally launch your EC2 instance with the “Launch Instances” button. Now you can go back to your EC2 Dashboard, click on “Running Instances” and see your freshly launched EC2 instance.</p>
+</section>
+<section id="get-an-elastic-ip-address" class="level2">
+<h2 class="anchored" data-anchor-id="get-an-elastic-ip-address">2. Get an Elastic IP Address</h2>
+<p>Your EC2 Dashboard shows you a lot of info about your EC2 instance, including your IPv4 Public IP. This address could change during the lifetime of your EC2 instance though, so you need to assign it an Elastic IP, which will remain attached to your instance as long as you want. To do this, select the Elastic IP service in your AWS Console and click “Allocate new address”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-allocate-elastic-ip-address.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Allocate Elastic IP</figcaption><p></p>
+</figure>
+</div>
+<p>You don’t have to change anything from the defaults. Going through that short wizard will give you a new Elastic IP address. In my case, it’s <code>3.19.20.222</code>. Now that you have this IP Address, go to your Elastic IP Dashboard, select the new Elastic IP, click “Actions”, then “Associate address” to associate it with your running instance.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-associate-elastic-ip.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Associate Elastic IP</figcaption><p></p>
+</figure>
+</div>
+<p>In the next screen, choose select your instance then click “Associate”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-select-instance-to-associate-elastic-ip.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Select Instance to Associate Elastic IP</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="add-iam-role-to-ec2-instance" class="level2">
+<h2 class="anchored" data-anchor-id="add-iam-role-to-ec2-instance">3. Add IAM Role to EC2 Instance</h2>
+<p>The last modification you have to do to your EC2 instance is to add an IAM role to it to allow it to access S3 storage, which is where the static files will be stored. First, we need to create the IAM role. Go to the IAM service in your AWS Console (search “IAM” in the search box). You’ll see something that looks like this with a few default IAM roles already available. We’ll make a new one that only has an S3 Access policy, so click “Create role”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-iam-dashboard.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS IAM Dashboad</figcaption><p></p>
+</figure>
+</div>
+<p>Choose the EC2 service, then click “Next: Permissions”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-create-role-page-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Create IAM Role Page 1</figcaption><p></p>
+</figure>
+</div>
+<p>Scroll down to the <code>AmazonS3FullAccess</code> policy, select that, then click “Next: Tags”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-create-role-page-2.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Create IAM Role Page 2</figcaption><p></p>
+</figure>
+</div>
+<p>Skip to the next page, enter a name for this Role (I called it “S3Access”), and click “Create role”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-create-role-page-4.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Create IAM Role Page 4</figcaption><p></p>
+</figure>
+</div>
+<p>Now we need to attach this role to our EC2 instance. Go to the Running Instances section of your EC2 Dashboard. Select your instance, then click “Actions &gt; Instance Settings &gt; Attach/Replace IAM Role”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-attach-iam-role.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Attach IAM Role</figcaption><p></p>
+</figure>
+</div>
+<p>Select your <code>S3Access</code> IAM role and attach it.</p>
+</section>
+<section id="create-s3-bucket" class="level2">
+<h2 class="anchored" data-anchor-id="create-s3-bucket">4. Create S3 Bucket</h2>
+<p>Now that our EC2 instance is all set up, we need to create an S3 bucket to store static files in. Go to the S3 service in your AWS Console and click “Create bucket”. In the wizard that pops up, make sure the Region is the same as your EC2 instance and pick a name for your bucket, then click “Next”.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-create-s3-bucket-page-1.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Create S3 Bucket Page 1</figcaption><p></p>
+</figure>
+</div>
+<p>You can stick with the default options in page 2 and click Next. On the “Set Permissions” page, you’ll need to uncheck all the boxes so it is publicly accessible.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="aws-create-s3-bucket-page-3.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">AWS Create S3 Bucket Page 3</figcaption><p></p>
+</figure>
+</div>
+<p>Click “Next”, then create the bucket.</p>
+</section>
+<section id="get-a-domain-name" class="level2">
+<h2 class="anchored" data-anchor-id="get-a-domain-name">5. Get a Domain Name</h2>
+<p>To enable HTTPS using <a href="https://letsencrypt.org/">Let’s Encrypt</a> (the default certificate authority in the Django Cookiecutter template), you’ll need a domain name. You can get a domain name for free (!) from <a href="https://www.freenom.com">freenom.com</a>. I got <a href="https://testaws.ga">testaws.ga</a>. Whether you use Freenom or some other service, you need to create A records that associate the Elastic IP we reserved for our EC2 instance with this domain name. It should look something like this, where the “Target” for both records is our Elastic IP:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="freenom-dns-management.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Freenom DNS Management</figcaption><p></p>
+</figure>
+</div>
+<p>Be aware that it might take a day or two for your IP address change to actually go through so that your domain name actually points to the right place.</p>
+</section>
+<section id="initialize-django-project-with-cookiecutter" class="level2">
+<h2 class="anchored" data-anchor-id="initialize-django-project-with-cookiecutter">6. Initialize Django Project with Cookiecutter</h2>
+<p>OK, that was a lot of clicking through wizards so pat yourself on the back, stand up and stretch, maybe grab a coffee. Now we’re finally ready to start getting to Django. If you don’t already have <code>cookiecutter</code> installed (you can check with <code>which cookiecutter</code>), you can install it with</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install cookiecutter</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Once that’s installed, you can initialize your Django project with</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">cookiecutter</span> https://github.com/pydanny/cookiecutter-django</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This asks a bunch of questions. Here’s how I answered them:</p>
+<pre class="text"><code>You've downloaded /Users/benlindsay/.cookiecutters/cookiecutter-django before. Is it okay to delete and re-download it? [yes]:
+project_name [My Awesome Project]: Test Django On AWS
+project_slug [test_django_on_aws]:
+description [Behold My Awesome Project!]: Deploying Django on AWS for Free
+author_name [Daniel Roy Greenfeld]: Ben Lindsay
+domain_name [example.com]: testaws.ga
+email [ben-lindsay@example.com]: benjlindsay@gmail.com
+version [0.1.0]:
+Select open_source_license:
+1 - MIT
+2 - BSD
+3 - GPLv3
+4 - Apache Software License 2.0
+5 - Not open source
+Choose from 1, 2, 3, 4, 5 (1, 2, 3, 4, 5) [1]:
+timezone [UTC]: America/Chicago
+windows [n]:
+use_pycharm [n]:
+use_docker [n]: y
+Select postgresql_version:
+1 - 11.3
+2 - 10.8
+3 - 9.6
+4 - 9.5
+5 - 9.4
+Choose from 1, 2, 3, 4, 5 (1, 2, 3, 4, 5) [1]:
+Select js_task_runner:
+1 - None
+2 - Gulp
+Choose from 1, 2 (1, 2) [1]:
+Select cloud_provider:
+1 - AWS
+2 - GCP
+3 - None
+Choose from 1, 2, 3 (1, 2, 3) [1]:
+custom_bootstrap_compilation [n]:
+use_compressor [n]:
+use_celery [n]:
+use_mailhog [n]:
+use_sentry [n]:
+use_whitenoise [n]:
+use_heroku [n]:
+use_travisci [n]:
+keep_local_envs_in_vcs [y]:
+debug [n]:
+ [SUCCESS]: Project initialized, keep up the good work!</code></pre>
+<p>The only options that really matter for our purposes are putting the correct domain name (<code>testaws.ga</code> in my case), choosing AWS as the cloud provider, and saying yes to <code>use_docker</code>. This makes a new folder called <code>test_django_on_aws</code> in my case with all the project files in it. Before doing anything else, let’s put our project in version control. The default <code>.gitignore</code> keeps production environment files out of version control, but always make sure you haven’t committed any secrets before pushing to Github.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> test_django_on_aws</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> init</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> add .</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> cm <span class="at">-m</span> <span class="st">"files as generated by cookiecutter"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If you have Docker and Docker Compose installed on your computer, you can test your Django project by running it locally. You don’t need Docker installed to deploy to AWS though. To run it locally, make sure you’re in the base project folder and run</p>
+<pre><code>docker-compose -f local.yml build
+docker-compose -f local.yml up</code></pre>
+<p>The <code>build</code> command will take a long time the first time you run it so be patient. After running the <code>up</code> command, navigate to <code>localhost:8000</code> in your browser, and you should see something like this, with a <a href="https://django-debug-toolbar.readthedocs.io">Django Debug Toolbar</a> on the right.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="django-cookiecutter-local.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Django Cookiecutter Local</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="modify-production-environment-variables" class="level2">
+<h2 class="anchored" data-anchor-id="modify-production-environment-variables">7. Modify Production Environment Variables</h2>
+<p>Before deploying to AWS, there are a couple production environment variables to add in. If you open up <code>.envs/.production/.django</code>, you’ll see a file with these lines in it:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Email</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="va">MAILGUN_API_KEY</span><span class="op">=</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_SERVER_EMAIL</span><span class="op">=</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="va">MAILGUN_DOMAIN</span><span class="op">=</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># AWS</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_AWS_ACCESS_KEY_ID</span><span class="op">=</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_AWS_SECRET_ACCESS_KEY</span><span class="op">=</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_AWS_STORAGE_BUCKET_NAME</span><span class="op">=</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>At a minimum, you need to add the S3 bucket name to <code>DJANGO_AWS_STORAGE_BUCKET_NAME</code>. If you want to be able to have users create accounts on the site, you’ll need to add a <code>MAILGUN_API_KEY</code> and <code>MAILGUN_DOMAIN</code> as well. If you sign up for a free account at <a href="https://mailgun.com">mailgun.com</a>, you can follow the instructions <a href="https://help.mailgun.com/hc/en-us/articles/203380100-Where-Can-I-Find-My-API-Key-and-SMTP-Credentials-">here</a> to get your API key. My variables now look something like this:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Email</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="va">MAILGUN_API_KEY</span><span class="op">=</span>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX-XXXXXXXX-XXXXXXXX</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_SERVER_EMAIL</span><span class="op">=</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="va">MAILGUN_DOMAIN</span><span class="op">=</span>sandboxXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.mailgun.org</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># AWS</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="co"># ------------------------------------------------------------------------------</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_AWS_ACCESS_KEY_ID</span><span class="op">=</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_AWS_SECRET_ACCESS_KEY</span><span class="op">=</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_AWS_STORAGE_BUCKET_NAME</span><span class="op">=</span>test-aws-django-static</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="install-and-start-docker-on-ec2-instance" class="level2">
+<h2 class="anchored" data-anchor-id="install-and-start-docker-on-ec2-instance">8. Install and Start Docker on EC2 Instance</h2>
+<p>OK, time to actually start doing stuff on the EC2 instance. To <code>ssh</code> in, we need the hostname, which you can get from the Running Instances dashboard within the EC2 service. It should look something like <code>ec2-WWW-XXX-YYY-ZZZ.us-east-2.compute.amazonaws.com</code>, where <code>WWW.XXX.YYY.ZZZ</code> would be your public IP. To ssh into my instance, I run</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ssh</span> <span class="at">-i</span> ~/.ssh/test-aws.pem ec2-user@ec2-3-19-20-222.us-east-2.compute.amazonaws.com</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Note: Your username is literally <code>ec2-user</code>, not something specific to you. It’s the same for everyone. Once you’re in, run a couple update/install commands:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> yum update <span class="at">-y</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> yum install <span class="at">-y</span> docker</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> service docker start</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> pip install docker-compose</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This next one is a nice convenience command to make it so we don’t have to type <code>sudo</code> in front of all our <code>docker</code> commands.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sudo</span> usermod <span class="at">-aG</span> docker ec2-user</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Make sure it’s working by typing <code>docker ps</code> which should give you this output:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">[ec2-user@ip-XXX-XXX-XXX-XXX</span> ~]$ docker ps</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">CONTAINER</span> ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="copy-files-to-ec2-instance" class="level2">
+<h2 class="anchored" data-anchor-id="copy-files-to-ec2-instance">9. Copy Files to EC2 Instance</h2>
+<p>Open a new terminal window, and make sure you’re in your project’s top-level directory, i.e.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> /path/to/test_django_on_aws</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then run this command with the right path to your <code>.pem</code> file and DNS:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rsync</span> <span class="at">-av</span> <span class="at">-e</span> <span class="st">"ssh -i /path/to/your.pem"</span> . ec2-user@ec2-WWW-XXX-YYY-ZZZ.REGION.compute.amazonaws.com:~/app/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now in your terminal that’s <code>ssh</code>’ed into AWS, you should be able to</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="bu">cd</span> ~/app</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>and see all of your files copied there.</p>
+</section>
+<section id="build-and-deploy" class="level2">
+<h2 class="anchored" data-anchor-id="build-and-deploy">10. Build and Deploy</h2>
+<p>Finally, it’s time. Within your <code>app</code> directory on your EC2 instance, run the following two commands:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> <span class="at">-f</span> production.yml build</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> <span class="at">-f</span> production.yml up <span class="at">-d</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>build</code> command will take a while, but the <code>up</code> command will be pretty fast. Now if all goes well, you should be able to navigate to your domain name in a browser (<code>testaws.ga</code> in my case) and see a screen like the very first screenshot in this blog post. If you don’t see it, keep calm and go to the next section. If you do, congratulations! The universe smiles kindly on you. Go purchase a lottery ticket, then skip to section 12 and read on about accessing the admin section and creating user profiles.</p>
+</section>
+<section id="it-didnt-work.-now-what" class="level2">
+<h2 class="anchored" data-anchor-id="it-didnt-work.-now-what">11. It didn’t work. Now what?</h2>
+<p>There are so many moving parts that it’s pretty unlikely this will have worked perfectly the first time through. Getting to the point where I could write this post was a study in masochism, plowing through problem after problem until I finally got the web page to render. I’ll go through some of the problems I ran into and how I fixed them to give you some ideas about what to do next.</p>
+<ol type="1">
+<li><p><strong>The domain might need some time to point to the right IP address.</strong> It can take up to a day or two. When Chrome couldn’t connect to the webpage, I opened a terminal and typed</p>
+<pre><code> ping testaws.ga</code></pre>
+<p>which responded with</p>
+<pre><code> PING testaws.ga (3.17.199.231): 56 data bytes
+ Request timeout for icmp_seq 0
+ Request timeout for icmp_seq 1</code></pre>
+<p>I had previously pointed <code>testaws.ga</code> at <code>3.17.199.231</code>, so I double-checked to make sure I had it pointed at my new Elastic IP, <code>3.19.20.222</code> and…waited. <code>ping</code> kept showing the old IP for about an hour, so I let it sit overnight, and in the morning it pointed to the right one. Don’t worry if you get <code>Request timeout</code>s though. I get those and the site seems to be working fine.</p></li>
+<li><p><strong>Check the logs.</strong> Once I got to the point of running the <code>docker-compose</code> commands on the EC2 instance, checking the logs was crucial to debugging my problems. That (plus a fancy new website called <a href="https://google.com">Google.com</a>) is how I found out that Let’s Encrypt doesn’t work without a domain name, how I found out I needed to point to an S3 bucket. The way you check them is to run</p>
+<pre><code> docker-compose -f production.yml logs</code></pre>
+<p>within the <code>app</code> directory of your EC2 instance. You’ll get a long printout of feedback from <code>traefik</code>, <code>django</code>, <code>postgres</code>, and <code>redis</code>. The main errors I ran into were <code>traefik</code> saying something like</p>
+<pre><code> unable to generate a certificate for the domains [mydomain.blah]</code></pre>
+<p>or a python stacktrace from <code>django</code> involving <code>boto3</code>, telling me there was a problem with S3. If S3 is working, you should see a folder called <code>static</code> in your S3 bucket in the AWS Console.</p></li>
+</ol>
+</section>
+<section id="admin-dashboard" class="level2">
+<h2 class="anchored" data-anchor-id="admin-dashboard">12. Admin Dashboard</h2>
+<p>The admin tool is a nice feature of Django, so let’s get that working. While <code>ssh</code>ed into your EC2 instance and in the <code>app</code> directory, first type</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> <span class="at">-f</span> production.yml run <span class="at">--rm</span> django python manage.py migrate</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>to run migrations that will make the admin panel available, then create a superuser with</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">docker-compose</span> <span class="at">-f</span> production.yml run <span class="at">--rm</span> django python manage.py createsuperuser</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The Django Cookiecutter template is very security-conscious, so it generated a random string as the URL for your admin page. Go to <code>.envs/.production/.django</code> and find the line that looks like</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="va">DJANGO_ADMIN_URL</span><span class="op">=</span>XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Copy that string and navigate to <code>yourdomain.name/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/</code>, and it should give you a login screen. Log in with the username and password you just created, and you should see this admin page:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="django-admin-page.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Django Admin Page</figcaption><p></p>
+</figure>
+</div>
+</section>
+<section id="create-user-profiles" class="level2">
+<h2 class="anchored" data-anchor-id="create-user-profiles">13. Create User Profiles</h2>
+<p>Before we try making a user profile, note that the free version of Mailgun only lets you send emails to addresses you have specified in your account. So to test this, you’ll need to go to <a href="https://app.mailgun.com/app/sending/domains">app.mailgun.com/app/sending/domains</a> and select your sandbox domain…</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="mailgun-domains-page.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Mailgun Domains Page</figcaption><p></p>
+</figure>
+</div>
+<p>…then add whatever emails you want to the list of authorized recipients.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="mailgun-authorized-recipients.png" class="img-fluid figure-img"></p>
+<p></p><figcaption class="figure-caption">Mailgun Authorized Recipients</figcaption><p></p>
+</figure>
+</div>
+<p>Mailgun will send a confirmation email to whatever addresses you list. Once you add and confirm an address, you can test out user profile creation on your Django site with that address. Django will send that a confirmation email to that address. For me, that email showed up in Spam at first, so check there if you don’t see it.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">14. Conclusion</h2>
+<p>I hope this post helps someone out there, especially future me. AWS can be a pain in the @$$ so hopefully having some detailed steps will make it just a little less painful. Happy coding, and I’d love to hear any feedback below or on the Twitters.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
