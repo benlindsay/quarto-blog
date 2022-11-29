@@ -1,0 +1,18 @@
+project:
+  type: website
+
+website:
+  title: "Shallow Learnings"
+  navbar:
+    right:
+      - about.qmd
+      - icon: mastodon
+        href: https://data-folks.masto.host/@benlindsay
+      - icon: github
+        href: https://github.com/benlindsay
+      - icon: linkedin
+        href: https://linkedin.com/in/benjlindsay
+format:
+  html:
+    theme: cosmo
+    css: styles.css
