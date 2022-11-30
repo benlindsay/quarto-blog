@@ -12,6 +12,17 @@ website:
         href: https://github.com/benlindsay
       - icon: linkedin
         href: https://linkedin.com/in/benjlindsay
+  comments:
+    giscus:
+      repo: benlindsay/quarto-blog
+      # repo-id: 
+      category: "Announcements"
+      # category-id: 
+      mapping: "pathname"
+      reactions-enabled: true
+      loading: lazy
+      input-position: "bottom"
+      theme: "light"
 format:
   html:
     theme: cosmo
