@@ -14,13 +14,13 @@ website:
         href: https://linkedin.com/in/benjlindsay
   comments:
     giscus:
-      repo: benlindsay/quarto-blog
-      # repo-id: 
+      repo: "benlindsay/quarto-blog"
+      repo-id: "R_kgDOIhZJDw"
       category: "Announcements"
-      # category-id: 
+      category-id: "DIC_kwDOIhZJD84CS1B6"
       mapping: "pathname"
       reactions-enabled: true
-      loading: lazy
+      loading: "lazy"
       input-position: "bottom"
       theme: "light"
 format:
