@@ -1,1 +1,11 @@
 /* css styles */
+
+/*The "description" attribute of posts shows up in the post listings AND the top of
+  the post itself. For now I just want it to show up in the post listings, so I'm
+  hiding it in the post itself until Quarto provides the ability to configure this
+  without CSS hacks. Check out this discussion:
+  https://github.com/quarto-dev/quarto-cli/discussions/3495
+*/
+#quarto-document-content .description {
+  display: none
+}
